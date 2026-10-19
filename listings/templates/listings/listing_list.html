@@ -1,0 +1,28 @@
+{% extends 'listings/base.html' %}
+{% block content %}
+<h2 class="mb-4">Объявления</h2>
+<form method="get" class="row g-3 mb-4">
+  <div class="col-md-4"><input name="q" class="form-control" placeholder="Поиск по названию/описанию" value="{{ request.GET.q }}"></div>
+  <div class="col-md-3"><input name="location" class="form-control" placeholder="Город/район" value="{{ request.GET.location }}"></div>
+  <div class="col-md-2"><input name="min_price" type="number" step="0.01" class="form-control" placeholder="От цены" value="{{ request.GET.min_price }}"></div>
+  <div class="col-md-2"><input name="max_price" type="number" step="0.01" class="form-control" placeholder="До цены" value="{{ request.GET.max_price }}"></div>
+  <div class="col-md-1"><button type="submit" class="btn btn-primary w-100">🔍</button></div>
+</form>
+
+<div class="row">
+  {% for listing in listings %}
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ listing.title }}</h5>
+          <p class="card-text text-muted">{{ listing.location }}</p>
+          <p class="fw-bold">{{ listing.price }} ₽/день</p>
+          <a href="{% url 'listings:listing_detail' listing.pk %}" class="btn btn-outline-dark btn-sm">Подробнее</a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted">Объявлений пока нет. Попробуйте изменить фильтры.</p>
+  {% endfor %}
+</div>
+{% endblock %}

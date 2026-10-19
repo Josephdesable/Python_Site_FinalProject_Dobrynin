@@ -1,0 +1,80 @@
+{% extends 'listings/base.html' %}
+
+{% block content %}
+<div class="row">
+  <!-- Левая колонка: Изображение -->
+  <div class="col-md-5 mb-4">
+    {% if listing.image %}
+      <img src="{{ listing.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ listing.title }}">
+    {% else %}
+      <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded shadow-sm" style="height: 350px;">
+        <span class="fs-5">📷 Нет изображения</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Правая колонка: Информация -->
+  <div class="col-md-7">
+    <h2 class="mb-3">{{ listing.title }}</h2>
+    <p class="fs-4 text-primary fw-bold mb-3">{{ listing.price }} ₽ / день</p>
+    
+    <p class="text-muted mb-2">📍 {{ listing.location }}</p>
+    <p class="text-muted mb-4">📅 Аренда: {{ listing.rental_start|date:"d.m.Y" }} — {{ listing.rental_end|date:"d.m.Y" }}</p>
+
+    <h5 class="mt-4">Описание</h5>
+    <p class="lead">{{ listing.description|linebreaks }}</p>
+
+    <!-- Контакты (строго по ТЗ: только для авторизованных) -->
+    <div class="alert alert-light border mt-4">
+      {% if user.is_authenticated %}
+        <p class="mb-1">📞 <strong>Контакты:</strong> {{ listing.contact_info }}</p>
+        <small class="text-muted">Владелец: {{ listing.owner.username }}</small>
+      {% else %}
+        <p class="mb-0 text-muted">🔒 <a href="{% url 'listings:login' %}">Войдите</a> или <a href="{% url 'listings:register' %}">зарегистрируйтесь</a>, чтобы увидеть контактные данные продавца.</p>
+      {% endif %}
+    </div>
+
+    <!-- Кнопки управления (только для владельца) -->
+    {% if user.is_authenticated and user == listing.owner %}
+      <div class="mt-4 d-flex gap-2">
+        <a href="{% url 'listings:listing_update' listing.pk %}" class="btn btn-warning btn-sm">✏️ Редактировать</a>
+        <a href="{% url 'listings:listing_delete' listing.pk %}" class="btn btn-danger btn-sm">🗑️ Удалить</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<hr class="my-5">
+
+<!-- Блок отзывов (Обратная связь по ТЗ) -->
+<div class="row">
+  <div class="col-12">
+    <h4 class="mb-4">💬 Отзывы</h4>
+
+    {% if user.is_authenticated %}
+      <div class="card p-3 mb-4">
+        <h6>Оставить отзыв</h6>
+        <form method="post" action="{% url 'listings:add_review' listing.pk %}">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="btn btn-primary btn-sm mt-2">Отправить</button>
+        </form>
+      </div>
+    {% endif %}
+
+    <div class="list-group">
+      {% for review in listing.review_set.all %}
+        <div class="list-group-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <strong>{{ review.author.username }}</strong>
+            <small class="text-muted">{{ review.created_at|date:"d.m.Y H:i" }}</small>
+          </div>
+          <p class="mb-0 mt-2">{{ review.text }}</p>
+        </div>
+      {% empty %}
+        <p class="text-muted py-3">Отзывов пока нет. Будьте первым!</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

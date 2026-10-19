@@ -1,0 +1,25 @@
+{% extends 'listings/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card border-danger shadow-sm">
+      <div class="card-header bg-danger text-white">
+        <h4 class="mb-0">⚠️ Подтверждение удаления</h4>
+      </div>
+      <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить объявление <strong>"{{ object.title }}"</strong>?</p>
+        <p class="text-muted">Это действие нельзя отменить.</p>
+        
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-danger btn-lg">Удалить навсегда</button>
+            <a href="{% url 'listings:listing_detail' object.pk %}" class="btn btn-outline-secondary">Отмена</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

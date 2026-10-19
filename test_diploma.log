@@ -1,0 +1,15 @@
+2026-09-28 08:44:06,316 - INFO - setUp: Созданы тестовая категория и модератор
+2026-09-28 08:44:07,005 - INFO - test_auth: Регистрация прошла успешно, пользователь создан
+2026-09-28 08:44:07,328 - INFO - test_auth: Вход выполнен успешно, сессия активна
+2026-09-28 08:44:07,653 - INFO - setUp: Созданы тестовая категория и модератор
+2026-09-28 08:44:07,995 - INFO - test_create_ad: Объявление создано, статус pending, ожидает модерации
+2026-09-28 08:44:08,313 - INFO - setUp: Созданы тестовая категория и модератор
+2026-09-28 08:44:08,967 - INFO - setUp: Созданы тестовая категория и модератор
+INFO:root:Test setup complete
+INFO:root:test_create_ad: PASS
+INFO:root:Test setup complete
+INFO:root:test_moderation_approval: PASS
+INFO:root:Test setup complete
+INFO:root:test_registration: PASS
+INFO:root:Test setup complete
+INFO:root:test_search_listings: PASS

@@ -1,0 +1,26 @@
+{% extends 'listings/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">📤 Создать новое объявление</h4>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <!-- Явный вывод формы -->
+          {{ form.as_p }}
+          
+          <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-success btn-lg">Отправить на модерацию</button>
+            <a href="{% url 'listings:listing_list' %}" class="btn btn-outline-secondary">Отмена</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
