@@ -1,9 +1,23 @@
 from django.db import models
-
-# Create your models here.
-
-from django.db import models
 from django.contrib.auth.models import User
+
+# 🔹 Новые перечисления статусов (вместо старых кортежей)
+class ListingStatus(models.TextChoices):
+    DRAFT = 'draft', 'Черновик'
+    PENDING = 'pending', 'На модерации'
+    APPROVED = 'approved', 'Опубликовано'
+    RENTED = 'rented', 'Сдано в аренду'
+
+class RequestStatus(models.TextChoices):
+    PENDING = 'pending', 'В ожидании'
+    APPROVED = 'approved', 'Подтверждено'
+    REJECTED = 'rejected', 'Отклонено'
+    COMPLETED = 'completed', 'Завершено'
+
+class TransactionStatus(models.TextChoices):
+    PENDING = 'pending', 'Ожидает оплаты'
+    PAID = 'paid', 'Оплачено'
+    REFUNDED = 'refunded', 'Возврат'
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="Категория")
@@ -17,13 +31,6 @@ class Category(models.Model):
         return self.name
 
 class Listing(models.Model):
-    STATUS_CHOICES = [
-        ('draft', 'Черновик'),
-        ('pending', 'На модерации'),
-        ('approved', 'Опубликовано'),
-        ('rented', 'Сдано в аренду'),
-    ]
-
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='listings', verbose_name="Автор")
     title = models.CharField(max_length=200, verbose_name="Название")
     description = models.TextField(verbose_name="Описание")
@@ -34,7 +41,7 @@ class Listing(models.Model):
     contact_info = models.CharField(max_length=255, verbose_name="Контакты")
     categories = models.ManyToManyField(Category, related_name='listings', verbose_name="Категории")
     is_moderated = models.BooleanField(default=False, verbose_name="Прошло модерацию")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус")
+    status = models.CharField(max_length=20, choices=ListingStatus.choices, default=ListingStatus.PENDING, verbose_name="Статус")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -47,20 +54,13 @@ class Listing(models.Model):
         return self.title
 
 class RentalRequest(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'В ожидании'),
-        ('approved', 'Подтверждено'),
-        ('rejected', 'Отклонено'),
-        ('completed', 'Завершено'),
-    ]
-
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='requests', verbose_name="Объявление")
     renter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests', verbose_name="Арендатор")
     start_date = models.DateField(verbose_name="Дата начала")
     end_date = models.DateField(verbose_name="Дата окончания")
     quantity = models.PositiveIntegerField(default=1, verbose_name="Количество")
     comments = models.TextField(blank=True, verbose_name="Комментарии")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус")
+    status = models.CharField(max_length=20, choices=RequestStatus.choices, default=RequestStatus.PENDING, verbose_name="Статус")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -72,18 +72,12 @@ class RentalRequest(models.Model):
         return f"Запрос от {self.renter.username}"
 
 class Transaction(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Ожидает оплаты'),
-        ('paid', 'Оплачено'),
-        ('refunded', 'Возврат'),
-    ]
-
     request = models.OneToOneField(RentalRequest, on_delete=models.CASCADE, related_name='transaction', verbose_name="Запрос")
     amount = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Сумма")
-    transaction_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата транзакции")
+    transaction_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата транзакии")
     rental_start = models.DateField(verbose_name="Период (начало)")
     rental_end = models.DateField(verbose_name="Период (конец)")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус")
+    status = models.CharField(max_length=20, choices=TransactionStatus.choices, default=TransactionStatus.PENDING, verbose_name="Статус")
 
     class Meta:
         verbose_name = "Транзакция"
@@ -103,7 +97,7 @@ class ListingImage(models.Model):
 
     def __str__(self):
         return f"Фото для {self.listing.title}"
-        
+
 class Review(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='reviews', verbose_name="Объявление")
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор отзыва")
@@ -115,6 +109,10 @@ class Review(models.Model):
         verbose_name = "Отзыв"
         verbose_name_plural = "Отзывы"
         ordering = ['-created_at']
+        # 🔒 Запрещаем пользователю оставлять >1 отзыва на одно объявление
+        constraints = [
+            models.UniqueConstraint(fields=['listing', 'author'], name='unique_listing_author_review')
+        ]
 
-
-        
+    def __str__(self):
+        return f"Отзыв от {self.author.username} на {self.listing.title}"
