@@ -79,6 +79,104 @@ class TestDiplomaFeatures(TestCase):
         self.assertTrue(pending_ad.is_moderated)
         self.assertEqual(pending_ad.status, 'approved')
         logging.info("test_moderation_approval: PASS")
+        
+
+    def test_edit_listing(self):
+        
+        listing = Listing.objects.create(
+            title='Старое название', owner=self.user, price=1000,
+            location='Москва', rental_start='2026-10-01', rental_end='2026-10-10',
+            contact_info='123', status='approved', is_moderated=True
+        )
+        listing.title = 'Новое название'
+        listing.price = 1500.00
+        listing.save()
+        listing.refresh_from_db()
+        
+        self.assertEqual(listing.title, 'Новое название')
+        self.assertEqual(listing.price, 1500.00)
+        logging.info("test_edit_listing: PASS")
+
+    def test_delete_listing(self):
+        listing = Listing.objects.create(
+            title='На удаление', owner=self.user, price=500,
+            location='Москва', rental_start='2026-10-01', rental_end='2026-10-10',
+            contact_info='123', status='approved', is_moderated=True
+        )
+        listing_id = listing.pk
+        listing.delete()
+        
+        self.assertFalse(Listing.objects.filter(pk=listing_id).exists())
+        logging.info("test_delete_listing: PASS")
+
+    def test_create_review(self):
+        """Сценарий: Создание отзыва (уникальность pairing уже проверена в models.UniqueConstraint)"""
+        from listings.models import Review, ListingStatus
+        
+       
+        test_listing = Listing.objects.create(
+            title='Объявление для отзыва',
+            owner=self.user,
+            price=1000,
+            location='Москва',
+            rental_start='2026-10-01',
+            rental_end='2026-10-10',
+            contact_info='123',
+            status=ListingStatus.APPROVED,
+            is_moderated=True
+        )
+        
+        # 2. Создаем отзыв, привязанный к этому объявлению
+        review = Review.objects.create(
+            listing=test_listing,
+            author=self.user,
+            text='Отличное качество, рекомендую!',
+            rating=5
+        )
+        
+      
+        self.assertEqual(review.rating, 5)
+        self.assertTrue(Review.objects.filter(author=self.user, listing=test_listing).exists())
+        logging.info("test_create_review: PASS")
+
+    def test_create_rental_request(self):
+        from listings.models import RentalRequest, ListingStatus
+        target_listing = Listing.objects.create(
+            title='Платье для заявки', owner=self.user, price=2000,
+            location='Москва', rental_start='2026-11-01', rental_end='2026-11-10',
+            contact_info='123', status=ListingStatus.APPROVED, is_moderated=True
+        )
+        request = RentalRequest.objects.create(
+            listing=target_listing,
+            renter=self.user,
+            start_date='2026-11-01',
+            end_date='2026-11-05',
+            quantity=1
+        )
+        self.assertEqual(request.status, 'pending')
+        self.assertEqual(request.renter, self.user)
+        logging.info("test_create_rental_request: PASS")
+
+    def test_create_transaction(self):
+        from listings.models import RentalRequest, Transaction, RequestStatus, TransactionStatus
+        req = RentalRequest.objects.create(
+            listing=self.user.listings.first() or Listing.objects.create(
+                title='Для транзакции', owner=self.user, price=3000,
+                location='Москва', rental_start='2026-12-01', rental_end='2026-12-10',
+                contact_info='123', status='approved', is_moderated=True
+            ),
+            renter=self.user, start_date='2026-12-01', end_date='2026-12-10'
+        )
+        transaction = Transaction.objects.create(
+            request=req,
+            amount=3000.00,
+            rental_start='2026-12-01',
+            rental_end='2026-12-10',
+            status=TransactionStatus.PAID
+        )
+        self.assertEqual(transaction.amount, 3000.00)
+        self.assertEqual(transaction.status, 'paid')
+        logging.info("test_create_transaction: PASS")
 
 if __name__ == '__main__':
     unittest.main()

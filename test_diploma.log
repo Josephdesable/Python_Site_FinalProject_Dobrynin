@@ -13,3 +13,38 @@ INFO:root:Test setup complete
 INFO:root:test_registration: PASS
 INFO:root:Test setup complete
 INFO:root:test_search_listings: PASS
+INFO:root:Test setup complete
+INFO:root:test_create_ad: PASS
+INFO:root:Test setup complete
+INFO:root:test_create_rental_request: PASS
+INFO:root:Test setup complete
+INFO:root:Test setup complete
+INFO:root:test_create_transaction: PASS
+INFO:root:Test setup complete
+INFO:root:test_delete_listing: PASS
+INFO:root:Test setup complete
+INFO:root:test_edit_listing: PASS
+INFO:root:Test setup complete
+INFO:root:test_moderation_approval: PASS
+INFO:root:Test setup complete
+INFO:root:test_registration: PASS
+INFO:root:Test setup complete
+INFO:root:test_search_listings: PASS
+INFO:root:Test setup complete
+INFO:root:test_create_ad: PASS
+INFO:root:Test setup complete
+INFO:root:test_create_rental_request: PASS
+INFO:root:Test setup complete
+INFO:root:test_create_review: PASS
+INFO:root:Test setup complete
+INFO:root:test_create_transaction: PASS
+INFO:root:Test setup complete
+INFO:root:test_delete_listing: PASS
+INFO:root:Test setup complete
+INFO:root:test_edit_listing: PASS
+INFO:root:Test setup complete
+INFO:root:test_moderation_approval: PASS
+INFO:root:Test setup complete
+INFO:root:test_registration: PASS
+INFO:root:Test setup complete
+INFO:root:test_search_listings: PASS
