@@ -4,3 +4,5 @@ __pycache__/
 test_db.sqlite3
 *.pyc
 .DS_Store
+*.sqlite3
+*.ipynb
